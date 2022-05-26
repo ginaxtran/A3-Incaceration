@@ -1,0 +1,126 @@
+
+#------- 5 variables------
+
+library(dplyr)
+library("stringr")
+
+incarc_df <- read.csv("https://raw.githubusercontent.com/vera-institute/incarceration-trends/master/incarceration_trends.csv")
+
+year <- incarc_df[,c("year")]
+
+white_pop15to64 <- incarc_df[,c("white_pop_15to64")]
+
+black_pop15to64 <-incarc_df[,c("black_pop_15to64")]
+
+state <- incarc_df[,c("state")]
+
+population <- incarc_df[,c("total_pop_15to64")]
+
+# What is the name of the state of the highest amount of prisoners?
+# `state_highest_prisoners`
+
+state_highest_prisoners <- incarc_df%>%
+  filter(total_pop_15to64 == max(total_pop_15to64, na.rm = TRUE)) %>%
+  pull(state)
+print(state_highest_prisoners)
+
+# What year had the most prisoners?
+# `highest_in_year`
+
+highest_pop <- incarc_df%>%
+  filter(year == max(year)) %>%
+  filter(total_pop_15to64 == max(total_pop_15to64))
+highest_in_year<- highest_pop[2]
+print(highest_in_year)
+
+# What is the lowest population of black citizens?
+# `min_black`
+
+incarc_df<- incarc_df[!is.na(incarc_df$black_pop_15to64),]
+ans <- min(incarc_df$black_pop_15to64)
+min_blacl <- incarc_df[incarc_df$black_pop_15to64 == min_black, "black_pop_15to64"]
+print(min_black)
+
+# What is the median amount of white prisoners?
+# `median_white`
+
+median_white <- median(incarc_df$white_pop_15to64)
+print(median_white)
+
+# What is the average population of prisoners?
+# `mean_prisoners`
+
+mean_prisoners <- mean(incarc_df$total_pop_15to64)
+print(mean_prisoners)
+
+
+#---------- Time Trend Chart-------
+
+library(stats)
+library(dplyr)
+library(ggplot2)
+
+incarc_df <- read.csv("https://raw.githubusercontent.com/vera-institute/incarceration-trends/master/incarceration_trends.csv")
+incarc_df2 <- na.omit(incarc_df)
+
+year_black <- incarc_df2[,c("year", "black_pop_15to64")]
+year_white <- incarc_df2[,c("year", "white_pop_15to64")]
+year_black %>% top_n(10, black_pop_15to64)
+year_white %>% top_n(10, white_pop_15to64)
+
+# Make a line chart for African Americans and Caucaisans Incarceration
+p = ggplot() + 
+  geom_line(data = year_black %>% top_n(10, black_pop_15to64), aes(x = year, y = black_pop_15to64), color = "blue") +
+  geom_line(data = year_white %>% top_n(10, white_pop_15to64), aes(x = year, y = white_pop_15to64), color = "red") +
+  ggtitle('Years of both African Americans and Caucasians Incarceration') +
+  xlab('Year') +
+  ylab('Population')+
+  
+#--------------- Variable Comparison Chart------
+  
+library(dplyr)
+library(ggplot2)
+
+
+incarc_df <- read.csv("https://raw.githubusercontent.com/vera-institute/incarceration-trends/master/incarceration_trends.csv")
+incarc_df2 <- na.omit(incarc_df)
+
+black_filter1 <- filter(incarc_df, year == 2018)
+black_white <- black_filter1[,c("white_pop_15to64", "black_pop_15to64")]
+
+black_white%>%
+  ggplot(aes(x = white_pop_15to64, y = black_pop_15to64)) +
+  geom_point() +
+  ggtitle("Caucasians vs. African Americans Incarceration in United States 2018") +
+  xlab("Caucasian Population") +
+  ylab("African American Population")
+
+# --------------------- Map chart-----
+
+library(usmap)
+library(dplyr)
+library(ggplot2)
+library(tidyverse)
+library(sf)
+library(tmap)
+library(gtrendsR)
+
+incarc_df <- read.csv("https://raw.githubusercontent.com/vera-institute/incarceration-trends/master/incarceration_trends.csv")
+
+black_filter <- filter(incarc_df, year == 2018)
+state_black <- black_filter[,c("state", "black_pop_15to64")]
+
+sum_state <- {state_black%>% 
+    group_by(state) %>% 
+    summarise(black_pop_15to64= sum(black_pop_15to64))}
+
+black_state <- gtrends("sum_state", geo = "US", time = "now 1-d")
+
+black_states <- black_state$fips
+black_states$fips <- fips(black_states$black_pop_15to64)
+
+plot_usmap(data = sum_state, values = "black_pop_15to64", labels = FALSE) + 
+  scale_fill_gradient2(low = "white", mid = "orange", high = "red", na.value = "grey", name = "African American Population") +
+  theme(legend.position = "right") + 
+  theme(panel.background = element_rect(colour = "black")) + 
+  labs(title = "African American Incarceration in 2018")
