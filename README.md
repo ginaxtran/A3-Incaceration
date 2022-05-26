@@ -2,6 +2,7 @@
 
 # African Americans have been racially stereotyped for incarceration.
 # It has been an agreement to both African Americans and Caucasians, in which African Americans were treated worse than Causcasians.
+# In my the charts I have created and varibles I have selected will show how racially disciminated African Americans are, although, they have less incarcerations. 
 
 # ------ 5 variables----
 
